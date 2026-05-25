@@ -1,6 +1,6 @@
 ---
 name: mch-backlog-mention-triage
-description: Read-only MCH/Appirits Backlog triage for Caleb's assigned issues, mentions, notifications, and unanswered ticket comments. Use when the user asks to check Backlog tickets, mentions, new additions after a prior comment/date, assigned work, or whether a mention needs action versus FYI.
+description: Read-only MCH/Appirits Backlog triage for Caleb's assigned issues, mentions, notifications, unanswered ticket comments, and linked Box files. Use when the user asks to check Backlog tickets, mentions, new additions after a prior comment/date, assigned work, Box-linked ticket references, or whether a mention needs action versus FYI.
 ---
 
 # MCH Backlog Mention Triage
@@ -19,6 +19,8 @@ This skill answers:
 - Which tickets have new comments after Caleb's latest comment or after a
   requested date such as "yesterday"?
 - Which items need action, and which are informational?
+- Which mentioned tickets include Box links, and can those files be correlated
+  to accessible Box metadata/content?
 
 For full spec-review drafting/posting, use this skill first for triage, then use
 `mch-backlog-spec-review` if the user asks to inspect specifications, draft
@@ -38,8 +40,12 @@ write it into repo files, or include it in summaries.
 2. Save its JSON output to `/private/tmp/backlog-YYYY-MM-DD-triage.json` unless
    the user requested another path.
 3. Inspect the JSON and summarize the important buckets.
-4. State the fetch time, project, and any date baseline used.
-5. For each mention, classify it as:
+4. If relevant comments contain Box links, use the Box connector to correlate
+   the shared-link slug or file name to Box metadata. Confirm file id, name,
+   path, permissions, and whether text/markdown extraction or preview is
+   available.
+5. State the fetch time, project, and any date baseline used.
+6. For each mention, classify it as:
    - `Action needed`: explicit request for Caleb review/confirmation/work, or
      the ticket is assigned to Caleb and still active.
    - `Light action`: quick sanity-check/acknowledgement likely sufficient.
@@ -79,7 +85,31 @@ It computes:
 - mentions of `@Caleb Crane`,
 - mentions without a later Caleb-authored comment,
 - comments after Caleb's latest comment per ticket,
-- recent notifications grouped by issue.
+- recent notifications grouped by issue,
+- Box shared links found in comments, grouped by issue.
+
+## Box Correlation
+
+When a ticket comment includes a Box URL, do not ask the user to download it
+first. Use the Box connector when available:
+
+1. Extract the Box shared-link slug from comments, e.g.
+   `https://appirits.box.com/s/<slug>`.
+2. Search Box by the linked file title from the comment and/or by nearby
+   workbook/document name.
+3. Match the search result by exact `sharedLink.url` slug when possible.
+4. Read file details to report file id, name, path, modified time, owner, and
+   permissions such as `canPreview`, `canDownload`, and `canComment`.
+5. Try file content extraction for Office/PDF/text files. If extraction works,
+   summarize relevant sheet/section names. If extraction fails, report the
+   metadata match and preview capability instead of claiming content access.
+
+Mention this as a confidence signal in the triage:
+
+```markdown
+Box: matched Backlog link to `16-4-1〜7.バックエンド詳細設計.xlsx`
+file id `2229472269078`; preview/content extraction available.
+```
 
 ## Reporting Shape
 
@@ -114,3 +144,6 @@ and give a judgment. Do not paste long comments unless requested.
   tickets, and comments addressed primarily to someone else are usually FYI.
 - If the script cannot determine whether something was answered because the API
   page limit was reached, say so and rerun with a higher limit.
+- Treat Box access as read/preview/extract unless a download-capable tool is
+  explicitly available. Do not claim raw binary download unless it was actually
+  performed.

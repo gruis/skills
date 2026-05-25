@@ -151,6 +151,7 @@ function analyze({ me, assigned, recent, notifications, comments, issueMap }) {
     mentionedAfterLastOwn: mentioned,
     newCommentsAfterLastOwn: newAfterOwn,
     notificationIssues: [...notificationIssues.values()],
+    boxLinks: boxLinksByIssue(),
     recentWithoutOwnResponse: recent
       .map((issue) => ({
         ...issueSummary(issue),
@@ -175,6 +176,28 @@ function analyze({ me, assigned, recent, notifications, comments, issueMap }) {
         return comment.createdUser?.id !== me.id && (!own || new Date(comment.created) > new Date(own.created));
       })
       .map(commentSummary);
+  }
+
+  function boxLinksByIssue() {
+    const issues = [];
+    for (const [key, issue] of issueMap.entries()) {
+      const hits = [];
+      for (const comment of thread(key)) {
+        const links = extractBoxLinks(comment.content || '');
+        if (!links.length) continue;
+        hits.push({
+          comment: commentSummary(comment),
+          links,
+        });
+      }
+      if (hits.length) {
+        issues.push({
+          ...issueSummary(issue),
+          boxReferences: hits,
+        });
+      }
+    }
+    return issues;
   }
 }
 
@@ -252,4 +275,18 @@ function pickUser(user) {
 function trim(value, length = 800) {
   const text = value || '';
   return text.length > length ? `${text.slice(0, length)}...` : text;
+}
+
+function extractBoxLinks(text) {
+  const links = [];
+  const seen = new Set();
+  const pattern = /https?:\/\/[^\s)\]]*box\.com\/s\/([A-Za-z0-9_-]+)/g;
+  for (const match of text.matchAll(pattern)) {
+    const url = match[0];
+    const slug = match[1];
+    if (seen.has(url)) continue;
+    seen.add(url);
+    links.push({ url, slug });
+  }
+  return links;
 }

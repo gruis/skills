@@ -27,3 +27,19 @@ deciding whether Caleb needs to respond.
 - FYI / no action
 - Assigned to you
 - New after your last comment
+- Box-linked tickets
+
+## Box correlation notes
+
+- Backlog comments often link Appirits Box files as
+  `https://appirits.box.com/s/<slug>`.
+- Prefer an exact `sharedLink.url` slug match over a fuzzy title match.
+- Report both permission metadata and practical content access:
+  - metadata found
+  - preview available
+  - extracted text/markdown available
+  - raw binary download only if an actual download tool/path was used
+- For Excel workbooks, extracted content can expose sheet/tab names and enough
+  nearby text to confirm the ticket is pointing at the requested sheet.
+- If multiple Box results have similar names, use folder path, modified time,
+  creator, and shared-link slug to disambiguate.
