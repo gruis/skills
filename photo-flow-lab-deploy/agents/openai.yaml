@@ -1,0 +1,4 @@
+interface:
+  display_name: "Photo Flow Lab Deploy"
+  short_description: "Build, tag, sync, and deploy Photo Flow lab images."
+  default_prompt: "Use the Photo Flow lab deploy workflow to find the latest image build, update lab artifacts, sync, roll out, and verify the deployment."
