@@ -10,6 +10,8 @@ Optional resources live inside that skill folder, usually under `scripts/`,
 
 | Skill | Purpose |
 | --- | --- |
+| `caveman` | Ultra-compressed communication mode for terse, technical responses with minimal filler. |
+| `handoff` | Create a temporary handoff document so another agent or fresh session can continue work. |
 | `mch-backlog-mention-triage` | Read-only Appirits Backlog triage for assigned MCH tickets, mentions, notifications, and unanswered comments. |
 | `mch-backlog-spec-review` | MCH/Appirits Backlog spec-review workflow for upstream Japanese Excel specs and bilingual review responses. |
 | `photo-flow-lab-deploy` | Photo Flow / MedAHA lab image deployment workflow, including image tag lookup, deploy artifact updates, rollout, and verification. |
